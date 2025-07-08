@@ -5,10 +5,11 @@ using UnityEngine;
 public class ShipController : MonoBehaviour
 {
     [SerializeField]
-    private float moveSpeed,turnSpeed, boundaryWidth, boundaryLength;
+    private float moveSpeed,turnSpeed;
 
     Vector2 input;
-    Vector2 topRight, topLeft, bottomRight, bottomLeft;
+
+    public GameObject bullet;
 
 
 
@@ -21,10 +22,7 @@ public class ShipController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        topRight = new Vector2(boundaryLength / 2f, boundaryWidth / 2f);
-        topLeft = new Vector2(-boundaryLength / 2f, boundaryWidth / 2f);
-        bottomRight = new Vector2(boundaryLength / 2f, -boundaryWidth / 2f);
-        bottomLeft = new Vector2(-boundaryLength / 2f, -boundaryWidth / 2f);
+
 
         input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")); //read input
         if (Mathf.Abs(input.x) < 0.4f)
@@ -33,20 +31,26 @@ public class ShipController : MonoBehaviour
         transform.Translate(Vector2.up * input.y * moveSpeed * Time.deltaTime);
         transform.Rotate(new Vector3(0f,0f, -input.x * turnSpeed * Time.deltaTime));
 
+        float boundaryLength = Boundary.instance.boundaryLength;
+        float boundaryWidth = Boundary.instance.boundaryWidth;
 
         transform.position = new Vector2(   Mathf.Clamp(transform.position.x, -boundaryLength / 2f, boundaryLength / 2f),
                                             Mathf.Clamp(transform.position.y, -boundaryWidth / 2f, boundaryWidth / 2f));
 
+
+        if(Input.GetKeyDown(KeyCode.Space)) //press space bar
+        {
+            Shoot(); //shoot
+        }
     }
 
-    private void OnDrawGizmos()
+    void Shoot()
     {
-        Gizmos.color = Color.red; //set color
-        //draw lines
-        Gizmos.DrawLine(topRight, topLeft); //top
-        Gizmos.DrawLine(bottomRight, bottomLeft); //bottom
-        Gizmos.DrawLine(topRight, bottomRight); //right
-        Gizmos.DrawLine(topLeft, bottomLeft); //left
+        GameObject spawnedBullet = Instantiate(bullet);
+        spawnedBullet.transform.position = transform.position; //spawn where player is
+        spawnedBullet.transform.rotation = transform.rotation;
+        Destroy(spawnedBullet, 1f); //destory bullet after 2 seconds
     }
+
 
 }
